@@ -15,8 +15,8 @@ This project demonstrates a simple data pipeline using Node.js, Express, MinIO, 
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository_url>
-    cd data-pipeline-project
+    git clone https://github.com/MikeTeddyOmondi/data-pipelines
+    cd data-pipelines
     ```
 
 2.  **Configure environment variables**:
@@ -34,7 +34,9 @@ This project demonstrates a simple data pipeline using Node.js, Express, MinIO, 
 1.  **Send events to the API service:**
 
     ```bash
-    curl -X POST -H "Content-Type: application/json" -d '{"user_id": "123", "activity": "page_view", "page": "/home"}' http://localhost:3000/events
+    curl -X POST -H "Content-Type: application/json" \
+    -d '{"user_id": "EFdiSfbdnHRKMGKnLVRreTc58D29FvE2I+xJC5dQYs4", "activity": "page_view", "page": "/home"}' \ 
+    http://localhost:3333/events
     ```
 
 2.  **Monitor the logs:**
