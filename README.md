@@ -28,13 +28,19 @@ This project demonstrates a simple data pipeline using Node.js, Express, MinIO, 
     ```bash
     docker-compose up --build
     ```
+4.  **Stop the services:**
+
+    ```bash
+    docker-compose down
+    ```
 
 ## Usage
 
 1.  **Send events to the API service:**
 
     ```bash
-    curl -X POST -H "Content-Type: application/json" \
+    curl -X POST \
+    -H "Content-Type: application/json" \
     -d '{"user_id": "EFdiSfbdnHRKMGKnLVRreTc58D29FvE2I+xJC5dQYs4", "activity": "page_view", "page": "/home"}' \ 
     http://localhost:3333/events
     ```
