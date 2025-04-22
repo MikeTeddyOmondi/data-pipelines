@@ -1,0 +1,9 @@
+### Simulate a User click - Google analytics
+POST http://localhost:3333/events
+Content-Type: application/json
+
+{
+    "user_id": "EFdiSfbdnHRKMGKnLVRreTc58D29FvE2I+xJC5dQYs4", 
+    "activity": "page_view", 
+    "page": "/home"
+}

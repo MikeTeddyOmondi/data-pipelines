@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3333:3333"
+    environment:
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=false
+      - MINIO_ACCESS_KEY=minio
+      - MINIO_SECRET_KEY=password
+      - RABBITMQ_URL=amqp://guest:password@rabbitmq:5672
+      - RAW_DATA_BUCKET=raw-data
+      - MONGODB_URI=mongodb://root:password@mongo:27017/data-pipeline
+    depends_on:
+      - minio
+      - rabbitmq
+      - mongo
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

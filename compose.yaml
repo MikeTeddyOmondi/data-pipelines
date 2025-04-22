@@ -1,0 +1,121 @@
+name: data-pipelines
+
+services:
+  minio:
+    container_name: s3
+    image: quay.io/minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    command: ["server", "/data", "--console-address", ":9001"]
+    networks:
+      - app-network
+
+  rabbitmq:
+    container_name: queue
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - app-network
+
+  mongo:
+    container_name: mongo-db
+    image: mongo:4.2
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  api:
+    container_name: api-service
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+    ports:
+      - "3333:3333"
+    environment:
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_USE_SSL=${MINIO_USE_SSL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RAW_DATA_BUCKET=${RAW_DATA_BUCKET}
+      - MONGODB_URI=${MONGODB_URI}
+    depends_on:
+      - minio
+      - rabbitmq
+      - mongo
+    networks:
+      - app-network
+
+  processor:
+    container_name: processing-service
+    build:
+      context: ./processing-service
+      dockerfile: Dockerfile
+    ports:
+      - "4444:4444"
+    environment:
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_USE_SSL=${MINIO_USE_SSL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RAW_DATA_BUCKET=${RAW_DATA_BUCKET}
+      - MONGODB_URI=${MONGODB_URI}
+      - PROCESSED_ACTIVITY_QUEUE=${PROCESSED_ACTIVITY_QUEUE}
+    depends_on:
+      - minio
+      - rabbitmq
+      - mongo
+    networks:
+      - app-network
+
+  loader:
+    container_name: warehouse-loader-service
+    build:
+      context: ./warehouse-loader
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    environment:
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_USE_SSL=${MINIO_USE_SSL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RAW_DATA_BUCKET=${RAW_DATA_BUCKET}
+      - MONGODB_URI=${MONGODB_URI}
+      - PROCESSED_ACTIVITY_QUEUE=${PROCESSED_ACTIVITY_QUEUE}
+    depends_on:
+      - minio
+      - rabbitmq
+      - mongo
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  minio_data:
+  mongo_data:
