@@ -43,7 +43,7 @@ This project demonstrates a simple data pipeline using Node.js, Express, MinIO, 
 
 ## Architecture
 
-```mermaid
+```
 [Client] --> [API Service] --> [MinIO (Raw Data)] --> [RabbitMQ]
  |
  v
